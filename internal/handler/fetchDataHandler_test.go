@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/JimySheepman/go-rest-api/config/db"
@@ -18,50 +21,132 @@ func init() {
 	}
 }
 
-func TestGetDataHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/getData", nil)
-	if err != nil {
-		t.Errorf("Request creation failed: ERROR: %v", err)
-	}
+func TestGetFetchDataHandler(t *testing.T) {
 
-	rr := httptest.NewRecorder()
+	// ! finish GetFetchDataHandler back to finish
+	t.Run("mongodb fetch data and filter value", func(t *testing.T) {
 
+		testBody := &RecordsRequestPayload{
+			StartDate: "2016-01-26",
+			EndDate:   "2018-02-02",
+			MinCount:  2700,
+			MaxCount:  3000,
+		}
+
+		body, _ := json.Marshal(testBody)
+
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
+		if err != nil {
+			t.Errorf("Request creation failed: ERROR: %v", err)
+		}
+
+		res := httptest.NewRecorder()
+		handler := assertHandler()
+		handler.ServeHTTP(res, req)
+
+		expectedResponse := &RecordsRequestPayload{
+			StartDate: "2016-01-26",
+			EndDate:   "2018-02-02",
+			MinCount:  2700,
+			MaxCount:  3000,
+		}
+		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
+		expected := string(marshalExpectedResponse)
+		if !reflect.DeepEqual(res.Body.String(), marshalExpectedResponse) {
+			t.Errorf("Handler returned unexpected body: got\n %v want\n %v", res.Body.String(), string(marshalExpectedResponse))
+		}
+	})
+
+	t.Run("status method allowed POST", func(t *testing.T) {
+
+		testBody := &RecordsRequestPayload{
+			StartDate: "2016-01-26",
+			EndDate:   "2018-02-02",
+			MinCount:  2700,
+			MaxCount:  3000,
+		}
+
+		body, _ := json.Marshal(testBody)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
+		if err != nil {
+			t.Errorf("Request creation failed: ERROR: %v", err)
+		}
+
+		res := httptest.NewRecorder()
+		handler := assertHandler()
+		handler.ServeHTTP(res, req)
+
+		if req.Method != "POST" {
+			t.Errorf("Request method is not 'POST': got\n %v want\n %v", req.Method, http.MethodPost)
+		}
+
+	})
+
+	t.Run("status method not allowed GET", func(t *testing.T) {
+
+		testBody := &RecordsRequestPayload{
+			StartDate: "2016-01-26",
+			EndDate:   "2018-02-02",
+			MinCount:  2700,
+			MaxCount:  3000,
+		}
+
+		body, _ := json.Marshal(testBody)
+		req, err := http.NewRequest(http.MethodGet, "/api/v1/fetch-data", strings.NewReader(string(body)))
+		if err != nil {
+			t.Errorf("Request creation failed: ERROR: %v", err)
+		}
+
+		res := httptest.NewRecorder()
+		handler := assertHandler()
+		handler.ServeHTTP(res, req)
+
+		if req.Method != "GET" {
+			t.Errorf("Request method is not 'POST': got\n %v want\n %v", req.Method, http.MethodPost)
+		}
+
+	})
+
+	t.Run("wrong time format", func(t *testing.T) {
+
+		testBody := &RecordsRequestPayload{
+			StartDate: "2016-01-26",
+			EndDate:   "2018-02-02",
+			MinCount:  2700,
+		}
+
+		body, _ := json.Marshal(testBody)
+
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
+		if err != nil {
+			t.Errorf("Request creation failed: ERROR: %v", err)
+		}
+
+		res := httptest.NewRecorder()
+		handler := assertHandler()
+		handler.ServeHTTP(res, req)
+
+		expectedResponse := &RecordsResponsePayload{
+			Code:    3,
+			Message: "Error: wrong time format ",
+			Records: []Record{},
+		}
+		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
+		expected := string(marshalExpectedResponse)
+		fmt.Println(res.Body)
+		if !reflect.DeepEqual(res.Body.String(), expectedResponse) {
+			t.Errorf("Handler returned unexpected body: got\n %v want\n %v", res.Body.String(), expected)
+		}
+	})
+
+}
+
+func assertHandler() http.HandlerFunc {
 	database, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal("Cannot connect to database", err)
 	}
 
-	handler := http.HandlerFunc(GetDataHandler(database))
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
-	expected := `{"startDate":"2015-01-01","endDate":"2017-01-28","minCount":4,"maxCount":6304}`
-	if !reflect.DeepEqual(rr.Body.String(), expected) {
-		t.Errorf("handler returned unexpected body: got\n %v want\n %v", rr.Body.String(), expected)
-	}
+	handler := http.HandlerFunc(GetFetchDataHandler(database))
+	return handler
 }
-
-/*
-
-t.Run("read env file", func(t *testing.T) {
-	loaded, _ := LoadEnvironmentConfigure("../../.env")
-	expected := true
-
-	if loaded != expected {
-		t.Errorf("expected %v but got %v", expected, loaded)
-	}
-})
-
-t.Run("read env file error", func(t *testing.T) {
-	loaded, _ := LoadEnvironmentConfigure("../.env")
-	expected := false
-
-	if loaded != expected {
-		t.Errorf("expected %v but got %v", expected, loaded)
-	}
-}) */

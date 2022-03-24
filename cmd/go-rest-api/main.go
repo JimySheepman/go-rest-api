@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,7 +18,7 @@ func init() {
 }
 
 func main() {
-	_, err := env.LoadEnvironmentConfigure("../../.env")
+	_, err := env.LoadEnvironmentConfigure(".env")
 	if err != nil {
 		log.Fatal("Loading .env file failed")
 	}
@@ -32,19 +31,13 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// an example API handler
-		fmt.Println("PATH: /")
-
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
-	}).GetHandler()
-
-	router.HandleFunc("/getData", handler.GetDataHandler(database))
-
-	router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		// an example API handler
-		fmt.Println("PATH: /api/health")
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"Hello": "World"})
 	})
+
+	router.HandleFunc("/api/v1/fetch-data", handler.GetFetchDataHandler(database)).Methods("POST")
+	router.HandleFunc("/api/v1/in-memory", handler.PostInMemeoryDataHandler(database)).Methods("POST")
+	router.HandleFunc("/api/v1/in-memory", handler.GetInMemeoryDataHandler(database)).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      router,
