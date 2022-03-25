@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MemoryRequestPayload struct {
@@ -20,7 +18,7 @@ type MemoryErrorResponsePayload struct {
 }
 
 // POST Endpoint (In-memory)
-func PostInMemeoryDataHandler(db *mongo.Database) http.HandlerFunc {
+func PostInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -53,7 +51,7 @@ func PostInMemeoryDataHandler(db *mongo.Database) http.HandlerFunc {
 }
 
 //  GET Endpoint (In-memory)
-func GetInMemeoryDataHandler(db *mongo.Database) http.HandlerFunc {
+func GetInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.FormValue("key")
 		if key == "" {

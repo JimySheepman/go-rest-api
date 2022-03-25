@@ -36,8 +36,8 @@ func main() {
 	})
 
 	router.HandleFunc("/api/v1/fetch-data", handler.GetFetchDataHandler(database)).Methods("POST")
-	router.HandleFunc("/api/v1/in-memory", handler.PostInMemeoryDataHandler(database)).Methods("POST")
-	router.HandleFunc("/api/v1/in-memory", handler.GetInMemeoryDataHandler(database)).Methods("GET")
+	router.HandleFunc("/api/v1/in-memory", handler.PostInMemeoryDataHandler()).Methods("POST")
+	router.HandleFunc("/api/v1/in-memory", handler.GetInMemeoryDataHandler()).Methods("GET")
 
 	srv := &http.Server{
 		Handler:      router,
