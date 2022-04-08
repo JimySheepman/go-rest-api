@@ -1,23 +1,56 @@
 package router
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/JimySheepman/go-rest-api/internal/handler"
-	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Router(db *mongo.Database) http.Handler {
-	router := mux.NewRouter()
+type db *mongo.Database
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"Hello": "World"})
-	})
+var routes = []route{
+	newRoute("POST", "/api/v1/fetch-data", handler.GetFetchDataHandler()),
+	newRoute("POST", "/api/v1/in-memory", handler.PostInMemeoryDataHandler()),
+	newRoute("GET", "/api/v1/in-memory", handler.GetInMemeoryDataHandler()),
+}
 
-	router.HandleFunc("/api/v1/fetch-data", handler.GetFetchDataHandler(db)).Methods("POST")
-	router.HandleFunc("/api/v1/in-memory", handler.PostInMemeoryDataHandler()).Methods("POST")
-	router.HandleFunc("/api/v1/in-memory", handler.GetInMemeoryDataHandler()).Methods("GET")
+func newRoute(method, pattern string, handler http.HandlerFunc) route {
+	fmt.Println(route{method, regexp.MustCompile("^" + pattern + "$"), handler})
+	return route{method, regexp.MustCompile("^" + pattern + "$"), handler}
+}
+
+type route struct {
+	method  string
+	regex   *regexp.Regexp
+	handler http.HandlerFunc
+}
+
+type ctxKey struct{}
+
+func Serve(w http.ResponseWriter, r *http.Request) {
+	var allow []string
+	for _, route := range routes {
+		matches := route.regex.FindStringSubmatch(r.URL.Path)
+		fmt.Println(matches)
+		fmt.Println(len(matches))
+		fmt.Println(route.method)
+		if len(matches) > 0 {
+			if r.Method != route.method {
+				allow = append(allow, route.method)
+				continue
+			}
+			route.handler(w, r)
+			return
+		}
+	}
+	if len(allow) > 0 {
+		w.Header().Set("Allow", strings.Join(allow, ", "))
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	http.NotFound(w, r)
 }
