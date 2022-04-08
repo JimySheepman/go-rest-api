@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JimySheepman/go-rest-api/config/db"
 	"github.com/JimySheepman/go-rest-api/config/env"
 )
 
@@ -195,11 +194,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 }
 
 func assertHandler() http.HandlerFunc {
-	database, err := db.ConnectDB()
-	if err != nil {
-		log.Fatal("Cannot connect to database", err)
-	}
-
-	handler := http.HandlerFunc(GetFetchDataHandler(database))
+	handler := http.HandlerFunc(GetFetchDataHandler())
 	return handler
 }
