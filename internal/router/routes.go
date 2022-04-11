@@ -1,16 +1,12 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
 
 	"github.com/JimySheepman/go-rest-api/internal/handler"
-	"go.mongodb.org/mongo-driver/mongo"
 )
-
-type db *mongo.Database
 
 var routes = []route{
 	newRoute("POST", "/api/v1/fetch-data", handler.GetFetchDataHandler()),
@@ -19,7 +15,6 @@ var routes = []route{
 }
 
 func newRoute(method, pattern string, handler http.HandlerFunc) route {
-	fmt.Println(route{method, regexp.MustCompile("^" + pattern + "$"), handler})
 	return route{method, regexp.MustCompile("^" + pattern + "$"), handler}
 }
 
@@ -29,15 +24,10 @@ type route struct {
 	handler http.HandlerFunc
 }
 
-type ctxKey struct{}
-
 func Serve(w http.ResponseWriter, r *http.Request) {
 	var allow []string
 	for _, route := range routes {
 		matches := route.regex.FindStringSubmatch(r.URL.Path)
-		fmt.Println(matches)
-		fmt.Println(len(matches))
-		fmt.Println(route.method)
 		if len(matches) > 0 {
 			if r.Method != route.method {
 				allow = append(allow, route.method)

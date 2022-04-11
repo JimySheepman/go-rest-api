@@ -17,14 +17,12 @@ type MemoryErrorResponsePayload struct {
 	Message string `json:"msg"`
 }
 
-// POST Endpoint (In-memory)
 func PostInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
 		var memoryRequestPayload MemoryRequestPayload
 
-		// Reead request body
 		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			json.NewEncoder(w).Encode(MemoryErrorResponsePayload{
@@ -35,7 +33,6 @@ func PostInMemeoryDataHandler() http.HandlerFunc {
 			return
 		}
 
-		// Unmarshal request body
 		err = json.Unmarshal(req, &memoryRequestPayload)
 		if err != nil {
 			json.NewEncoder(w).Encode(MemoryErrorResponsePayload{
@@ -50,7 +47,6 @@ func PostInMemeoryDataHandler() http.HandlerFunc {
 	}
 }
 
-//  GET Endpoint (In-memory)
 func GetInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.FormValue("key")
@@ -63,7 +59,6 @@ func GetInMemeoryDataHandler() http.HandlerFunc {
 			return
 		}
 
-		// ? what is value. How to find value? Value is random ?
 		json.NewEncoder(w).Encode(MemoryRequestPayload{
 			Key:   key,
 			Value: "getir",
