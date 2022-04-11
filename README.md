@@ -2,12 +2,6 @@
 
 We’d like you to create a RESTful API with two endpoints.
 
-## issues
-
-- [X] Local run  : fix it. It's running.
-- [ ] Docker run : the request is sent but the result is not returned.
-- [ ] Heroku run : the request is sent but return status: 503
-
 ## Required Information
 
 1. One of them that fetches the data in the provided MongoDB collection and returns the results
