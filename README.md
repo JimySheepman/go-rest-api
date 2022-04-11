@@ -122,8 +122,11 @@ Sample:
 # make file 
 $ make -f Makefile
 
-# go cli
-$ go run ./cmd/go-rest-api/main.go
+# make file  run for windows
+$ make buildw
+
+# command line start
+$ go run main.go
 
 # Dockerfile
 $ docker build -t app .
@@ -134,30 +137,31 @@ $ docker run --name app -d -p 8000:8000 app:latest
 
 ```Bash
 .
-├── cmd
-│   └── go-rest-api
-│       └── main.go
 ├── config
-│   ├── db
-│   │   ├── db.go
-│   │   └── db_test.go
-│   └── env
-│       ├── config.go
-│       └── config_test.go
+│   ├── db
+│   │   ├── db.go
+│   │   └── db_test.go
+│   └── env
+│       ├── config.go
+│       └── config_test.go
+├── internal
+│   ├── handler
+│   │   ├── fetchDataHandler.go
+│   │   ├── fetchDataHandler_test.go
+│   │   ├── inMemoryHandler.go
+│   │   └── inMemoryHandler_test.go
+│   ├── router
+│   │   └── routes.go
+│   └── times
+│       ├── timeConverter.go
+│       ├── timeConverter_test.go
+│       ├── timeFormatValidator.go
+│       └── timeFormatValidator_test.go
+├── Dockerfile
 ├── example.env
 ├── go.mod
 ├── go.sum
-├── internal
-│   ├── handler
-│   │   ├── fetchDataHandler.go
-│   │   ├── fetchDataHandler_test.go
-│   │   ├── inMemoryHandler.go
-│   │   └── inMemoryHandler_test.go
-│   └── helper
-│       ├── timeConverter.go
-│       ├── timeConverter_test.go
-│       ├── timeFormatValidator.go
-│       └── timeFormatValidator_test.go
+├── main.go
 ├── Makefile
 └── README.md
 ```
