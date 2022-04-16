@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/JimySheepman/go-rest-api/internal/model"
 )
 
 type TestMemoryRequestPayload struct {
@@ -15,7 +17,7 @@ type TestMemoryRequestPayload struct {
 
 func TestPostInMemeoryDataHandler(t *testing.T) {
 	t.Run("In-memory POST Endpoint", func(t *testing.T) {
-		testBody := &MemoryRequestPayload{
+		testBody := &model.MemoryRequestPayload{
 			Key:   "active-tabs",
 			Value: "getir",
 		}
@@ -30,7 +32,7 @@ func TestPostInMemeoryDataHandler(t *testing.T) {
 		handler := http.HandlerFunc(PostInMemeoryDataHandler())
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := MemoryRequestPayload{
+		expectedResponse := model.MemoryRequestPayload{
 			Key:   "active-tabs",
 			Value: "getir",
 		}
@@ -58,7 +60,7 @@ func TestPostInMemeoryDataHandler(t *testing.T) {
 		res := httptest.NewRecorder()
 		handler := http.HandlerFunc(PostInMemeoryDataHandler())
 		handler.ServeHTTP(res, req)
-		expectedResponse := MemoryErrorResponsePayload{
+		expectedResponse := model.MemoryErrorResponsePayload{
 			Code:    2,
 			Message: "Error: could not complete unmarshal body",
 		}
@@ -79,7 +81,7 @@ func TestGetInMemeoryDataHandler(t *testing.T) {
 		handler := http.HandlerFunc(GetInMemeoryDataHandler())
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := MemoryRequestPayload{
+		expectedResponse := model.MemoryRequestPayload{
 			Key:   req.FormValue("key"),
 			Value: "getir",
 		}
@@ -98,7 +100,7 @@ func TestGetInMemeoryDataHandler(t *testing.T) {
 		handler := http.HandlerFunc(GetInMemeoryDataHandler())
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := MemoryErrorResponsePayload{
+		expectedResponse := model.MemoryErrorResponsePayload{
 			Code:    3,
 			Message: "Error: Url Param 'key' is missing",
 		}

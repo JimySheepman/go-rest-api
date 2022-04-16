@@ -5,27 +5,19 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/JimySheepman/go-rest-api/internal/model"
 )
-
-type MemoryRequestPayload struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type MemoryErrorResponsePayload struct {
-	Code    int    `json:"code"`
-	Message string `json:"msg"`
-}
 
 func PostInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		var memoryRequestPayload MemoryRequestPayload
+		var memoryRequestPayload model.MemoryRequestPayload
 
 		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			json.NewEncoder(w).Encode(MemoryErrorResponsePayload{
+			json.NewEncoder(w).Encode(model.MemoryErrorResponsePayload{
 				Code:    1,
 				Message: "Error: could not complete read from request body",
 			})
@@ -35,7 +27,7 @@ func PostInMemeoryDataHandler() http.HandlerFunc {
 
 		err = json.Unmarshal(req, &memoryRequestPayload)
 		if err != nil {
-			json.NewEncoder(w).Encode(MemoryErrorResponsePayload{
+			json.NewEncoder(w).Encode(model.MemoryErrorResponsePayload{
 				Code:    2,
 				Message: "Error: could not complete unmarshal body",
 			})
@@ -51,7 +43,7 @@ func GetInMemeoryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.FormValue("key")
 		if key == "" {
-			json.NewEncoder(w).Encode(MemoryErrorResponsePayload{
+			json.NewEncoder(w).Encode(model.MemoryErrorResponsePayload{
 				Code:    3,
 				Message: "Error: Url Param 'key' is missing",
 			})
@@ -59,7 +51,7 @@ func GetInMemeoryDataHandler() http.HandlerFunc {
 			return
 		}
 
-		json.NewEncoder(w).Encode(MemoryRequestPayload{
+		json.NewEncoder(w).Encode(model.MemoryRequestPayload{
 			Key:   key,
 			Value: "getir",
 		})

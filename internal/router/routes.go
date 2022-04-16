@@ -9,7 +9,7 @@ import (
 )
 
 var routes = []route{
-	newRoute("POST", "/api/v1/fetch-data", handler.GetFetchDataHandler()),
+	newRoute("POST", "/api/v1/fetch-data", handler.PostFetchDataHandler()),
 	newRoute("POST", "/api/v1/in-memory", handler.PostInMemeoryDataHandler()),
 	newRoute("GET", "/api/v1/in-memory", handler.GetInMemeoryDataHandler()),
 }

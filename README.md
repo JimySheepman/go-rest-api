@@ -146,6 +146,9 @@ $ docker run --name app -d -p 8000:8000 app:latest
 │   │   └── inMemoryHandler_test.go
 │   ├── router
 │   │   └── routes.go
+│   ├── model
+│   │   ├── memory.go
+│   │   └── records.go
 │   └── times
 │       ├── timeConverter.go
 │       ├── timeConverter_test.go
@@ -175,9 +178,9 @@ ok      github.com/JimySheepman/go-rest-api/config/db   0.002s
 
 PASS
 coverage: 88.9% of statements
-ok      github.com/JimySheepman/go-rest-api/internal/helper     0.001s
+ok      github.com/JimySheepman/go-rest-api/internal/times    0.001s
 
 PASS
-coverage: 85.7% of statements
-ok      github.com/JimySheepman/go-rest-api/internal/handler    8.748s
+coverage: 85.1% of statements
+ok      github.com/JimySheepman/go-rest-api/internal/handler    5.759s
 ```

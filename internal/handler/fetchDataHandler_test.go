@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/JimySheepman/go-rest-api/config/env"
+	"github.com/JimySheepman/go-rest-api/internal/model"
 )
 
 func init() {
@@ -26,10 +27,10 @@ type TestRecordsRequestPayload struct {
 	MaxCount  string `json:"maxCount"`
 }
 
-func TestGetFetchDataHandler(t *testing.T) {
+func TestPostFetchDataHandler(t *testing.T) {
 
 	t.Run("status method allowed POST", func(t *testing.T) {
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-02-02",
 			MinCount:  2700,
@@ -52,7 +53,7 @@ func TestGetFetchDataHandler(t *testing.T) {
 	})
 
 	t.Run("status method not allowed GET", func(t *testing.T) {
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-02-02",
 			MinCount:  2700,
@@ -75,7 +76,7 @@ func TestGetFetchDataHandler(t *testing.T) {
 	})
 
 	t.Run("succsess result", func(t *testing.T) {
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2015-01-26",
 			EndDate:   "2016-02-01",
 			MinCount:  3000,
@@ -93,10 +94,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler.ServeHTTP(res, req)
 
 		stringToTime, _ := time.Parse(time.RFC3339, "2015-01-19T14:27:54.01Z")
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    0,
 			Message: "Succsess",
-			Records: []Record{
+			Records: []model.Record{
 				{
 					Key:        "aCnXSuEJ",
 					CreatedAt:  stringToTime,
@@ -131,10 +132,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler := assertHandler()
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    2,
 			Message: "Error: could not complete unmarshal body",
-			Records: []Record{},
+			Records: []model.Record{},
 		}
 
 		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
@@ -147,7 +148,7 @@ func TestGetFetchDataHandler(t *testing.T) {
 	})
 
 	t.Run("wrong time format", func(t *testing.T) {
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-2-02",
 			MinCount:  2700,
@@ -164,10 +165,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler := assertHandler()
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    3,
 			Message: "Error: wrong time format ",
-			Records: []Record{},
+			Records: []model.Record{},
 		}
 		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
 		expected := string(marshalExpectedResponse) + "\n"
@@ -180,6 +181,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 }
 
 func assertHandler() http.HandlerFunc {
-	handler := http.HandlerFunc(GetFetchDataHandler())
+	handler := http.HandlerFunc(PostFetchDataHandler())
 	return handler
 }
