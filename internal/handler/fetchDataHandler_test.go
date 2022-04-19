@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -10,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JimySheepman/go-rest-api/config/db"
 	"github.com/JimySheepman/go-rest-api/config/env"
+	"github.com/JimySheepman/go-rest-api/internal/model"
 )
 
 func init() {
@@ -28,11 +27,10 @@ type TestRecordsRequestPayload struct {
 	MaxCount  string `json:"maxCount"`
 }
 
-func TestGetFetchDataHandler(t *testing.T) {
+func TestPostFetchDataHandler(t *testing.T) {
 
 	t.Run("status method allowed POST", func(t *testing.T) {
-
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-02-02",
 			MinCount:  2700,
@@ -52,12 +50,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		if req.Method != "POST" {
 			t.Errorf("Request method is not 'POST': got\n %v want\n %v", req.Method, http.MethodPost)
 		}
-
 	})
 
 	t.Run("status method not allowed GET", func(t *testing.T) {
-
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-02-02",
 			MinCount:  2700,
@@ -77,12 +73,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		if req.Method != "GET" {
 			t.Errorf("Request method is not 'POST': got\n %v want\n %v", req.Method, http.MethodPost)
 		}
-
 	})
 
 	t.Run("succsess result", func(t *testing.T) {
-
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2015-01-26",
 			EndDate:   "2016-02-01",
 			MinCount:  3000,
@@ -90,7 +84,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 		}
 
 		body, _ := json.Marshal(testBody)
-
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
 		if err != nil {
 			t.Errorf("Request creation failed: ERROR: %v", err)
@@ -101,10 +94,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler.ServeHTTP(res, req)
 
 		stringToTime, _ := time.Parse(time.RFC3339, "2015-01-19T14:27:54.01Z")
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    0,
 			Message: "Succsess",
-			Records: []Record{
+			Records: []model.Record{
 				{
 					Key:        "aCnXSuEJ",
 					CreatedAt:  stringToTime,
@@ -122,7 +115,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 	})
 
 	t.Run("could not complete unmarshal body", func(t *testing.T) {
-
 		testBody := &TestRecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-02-02",
@@ -131,7 +123,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 		}
 
 		body, _ := json.Marshal(testBody)
-
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
 		if err != nil {
 			t.Errorf("Request creation failed: ERROR: %v", err)
@@ -141,10 +132,10 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler := assertHandler()
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    2,
 			Message: "Error: could not complete unmarshal body",
-			Records: []Record{},
+			Records: []model.Record{},
 		}
 
 		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
@@ -157,8 +148,7 @@ func TestGetFetchDataHandler(t *testing.T) {
 	})
 
 	t.Run("wrong time format", func(t *testing.T) {
-
-		testBody := &RecordsRequestPayload{
+		testBody := &model.RecordsRequestPayload{
 			StartDate: "2016-01-26",
 			EndDate:   "2018-2-02",
 			MinCount:  2700,
@@ -166,7 +156,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 		}
 
 		body, _ := json.Marshal(testBody)
-
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/fetch-data", strings.NewReader(string(body)))
 		if err != nil {
 			t.Errorf("Request creation failed: ERROR: %v", err)
@@ -176,16 +165,13 @@ func TestGetFetchDataHandler(t *testing.T) {
 		handler := assertHandler()
 		handler.ServeHTTP(res, req)
 
-		expectedResponse := &RecordsResponsePayload{
+		expectedResponse := &model.RecordsResponsePayload{
 			Code:    3,
 			Message: "Error: wrong time format ",
-			Records: []Record{},
+			Records: []model.Record{},
 		}
 		marshalExpectedResponse, _ := json.Marshal(expectedResponse)
 		expected := string(marshalExpectedResponse) + "\n"
-
-		fmt.Println(len(expected))
-		fmt.Println(len(res.Body.String()))
 
 		if res.Body.String() != expected {
 			t.Errorf("Handler returned unexpected body: got\n %v want\n %v", res.Body.String(), expected)
@@ -195,11 +181,6 @@ func TestGetFetchDataHandler(t *testing.T) {
 }
 
 func assertHandler() http.HandlerFunc {
-	database, err := db.ConnectDB()
-	if err != nil {
-		log.Fatal("Cannot connect to database", err)
-	}
-
-	handler := http.HandlerFunc(GetFetchDataHandler(database))
+	handler := http.HandlerFunc(PostFetchDataHandler())
 	return handler
 }

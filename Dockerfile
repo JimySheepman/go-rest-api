@@ -1,6 +1,10 @@
-FROM golang:1.17-alpine
+# TODO: Don't copy to .env file research to fix method
 
-WORKDIR /app
+FROM golang:1.17 as build-env
+
+WORKDIR /go/src/app
+
+COPY .env ./
 
 COPY go.mod ./
 COPY go.sum ./
@@ -8,8 +12,9 @@ RUN go mod download
 
 COPY . ./
 
-RUN  go build -o service ./cmd/go-rest-api
+RUN CGO_ENABLED=0 go build -o /go/bin/app
 
-EXPOSE 8000
+FROM gcr.io/distroless/static
 
-CMD [ "./service" ]
+COPY --from=build-env /go/bin/app /
+CMD ["/app"]

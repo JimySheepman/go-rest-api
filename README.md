@@ -2,12 +2,6 @@
 
 We’d like you to create a RESTful API with two endpoints.
 
-## issues
-
-- [X] Local run  : fix it. It's running.
-- [ ] Docker run : the request is sent but the result is not returned.
-- [ ] Heroku run : the request is sent but return status: 503
-
 ## Required Information
 
 1. One of them that fetches the data in the provided MongoDB collection and returns the results
@@ -122,8 +116,11 @@ Sample:
 # make file 
 $ make -f Makefile
 
-# go cli
-$ go run ./cmd/go-rest-api/main.go
+# make file  run for windows
+$ make buildw
+
+# command line start
+$ go run main.go
 
 # Dockerfile
 $ docker build -t app .
@@ -134,30 +131,34 @@ $ docker run --name app -d -p 8000:8000 app:latest
 
 ```Bash
 .
-├── cmd
-│   └── go-rest-api
-│       └── main.go
 ├── config
-│   ├── db
-│   │   ├── db.go
-│   │   └── db_test.go
-│   └── env
-│       ├── config.go
-│       └── config_test.go
+│   ├── db
+│   │   ├── db.go
+│   │   └── db_test.go
+│   └── env
+│       ├── config.go
+│       └── config_test.go
+├── internal
+│   ├── handler
+│   │   ├── fetchDataHandler.go
+│   │   ├── fetchDataHandler_test.go
+│   │   ├── inMemoryHandler.go
+│   │   └── inMemoryHandler_test.go
+│   ├── router
+│   │   └── routes.go
+│   ├── model
+│   │   ├── memory.go
+│   │   └── records.go
+│   └── times
+│       ├── timeConverter.go
+│       ├── timeConverter_test.go
+│       ├── timeFormatValidator.go
+│       └── timeFormatValidator_test.go
+├── Dockerfile
 ├── example.env
 ├── go.mod
 ├── go.sum
-├── internal
-│   ├── handler
-│   │   ├── fetchDataHandler.go
-│   │   ├── fetchDataHandler_test.go
-│   │   ├── inMemoryHandler.go
-│   │   └── inMemoryHandler_test.go
-│   └── helper
-│       ├── timeConverter.go
-│       ├── timeConverter_test.go
-│       ├── timeFormatValidator.go
-│       └── timeFormatValidator_test.go
+├── main.go
 ├── Makefile
 └── README.md
 ```
@@ -177,9 +178,9 @@ ok      github.com/JimySheepman/go-rest-api/config/db   0.002s
 
 PASS
 coverage: 88.9% of statements
-ok      github.com/JimySheepman/go-rest-api/internal/helper     0.001s
+ok      github.com/JimySheepman/go-rest-api/internal/times    0.001s
 
 PASS
-coverage: 85.7% of statements
-ok      github.com/JimySheepman/go-rest-api/internal/handler    8.748s
+coverage: 85.1% of statements
+ok      github.com/JimySheepman/go-rest-api/internal/handler    5.759s
 ```

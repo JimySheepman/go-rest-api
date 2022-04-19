@@ -1,5 +1,5 @@
 run:
-	sudo go run ./cmd/go-rest-api/main.go
+	sudo go run ./main.go
 	clear
 
 build:
